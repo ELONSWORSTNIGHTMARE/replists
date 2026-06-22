@@ -1,38 +1,68 @@
-const chatBox = document.getElementById("chatBox");
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
 
-function addMessage(text, className) {
-  const msg = document.createElement("div");
-  msg.classList.add("message", className);
-  msg.innerText = text;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
+// 🔐 Put your API key here (NOT safe for production)
+const API_KEY = "YOUR_API_KEY_HERE";
+
+const messages = [];
+
+function addMessage(text, type) {
+  const div = document.createElement("div");
+  div.classList.add("msg", type);
+  div.innerText = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
 }
 
-// Simple “agent brain”
-function getBotResponse(input) {
-  input = input.toLowerCase();
-
-  if (input.includes("hello")) return "Hello! I'm your mini agent 🤖";
-  if (input.includes("how are you")) return "I'm just code, but I'm running fine ⚡";
-  if (input.includes("your name")) return "I'm Mini Agent built with JS.";
-  if (input.includes("time")) return "Current time is " + new Date().toLocaleTimeString();
-
-  return "I didn't understand that. Try asking something else.";
-}
-
-function sendMessage() {
-  const input = document.getElementById("userInput");
+async function sendMessage() {
   const text = input.value.trim();
-
   if (!text) return;
 
+  // show user message
   addMessage(text, "user");
-
-  const reply = getBotResponse(text);
-
-  setTimeout(() => {
-    addMessage(reply, "bot");
-  }, 500);
+  messages.push({ role: "user", content: text });
 
   input.value = "";
+
+  // loading message
+  const loadingId = document.createElement("div");
+  loadingId.classList.add("msg", "bot");
+  loadingId.innerText = "Thinking...";
+  chat.appendChild(loadingId);
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const res = await fetch("https://api.hades.dev/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: messages
+      })
+    });
+
+    const data = await res.json();
+
+    // remove loading
+    loadingId.remove();
+
+    const reply = data?.choices?.[0]?.message?.content || "No response";
+
+    messages.push({ role: "assistant", content: reply });
+
+    addMessage(reply, "bot");
+
+  } catch (err) {
+    loadingId.remove();
+    addMessage("Error connecting to API.", "bot");
+    console.error(err);
+  }
 }
+
+// Enter key support
+input.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") sendMessage();
+});
