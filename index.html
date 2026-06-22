@@ -1,24 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Agent</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<title>AI Test</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0f0f0f;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  #container {
+    width: 400px;
+    background: #1c1c1c;
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  #chat {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #333;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  input {
+    width: 75%;
+    padding: 8px;
+  }
+
+  button {
+    width: 20%;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .msg {
+    margin: 5px 0;
+  }
+
+  .user { color: #4fc3f7; }
+  .ai { color: #81c784; }
+</style>
 </head>
+
 <body>
+<div id="container">
+  <div id="chat"></div>
 
-<div class="app">
-  <div class="header">🧠 Mini AI Agent</div>
-
-  <div id="chat" class="chat"></div>
-
-  <div class="input-box">
-    <input id="input" type="text" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
-  </div>
+  <input id="input" placeholder="Type message..." />
+  <button onclick="send()">Send</button>
 </div>
 
-<script src="script.js"></script>
+<script>
+const API_URL = "https://api.hades.dev/api/v1/chat/completions";
+
+// ⚠️ PUT YOUR KEY HERE (DO NOT expose publicly in real apps)
+const API_KEY = "hades_sk_216afdebe30a5eb0e0f66a9015a3a742c16a69e349fb6cd7d00392bdd7de87b2";
+
+let messages = [];
+
+function addMessage(text, cls) {
+  const div = document.createElement("div");
+  div.className = "msg " + cls;
+  div.textContent = text;
+  document.getElementById("chat").appendChild(div);
+  document.getElementById("chat").scrollTop = 999999;
+}
+
+async function send() {
+  const input = document.getElementById("input");
+  const text = input.value;
+  if (!text) return;
+
+  input.value = "";
+
+  addMessage("You: " + text, "user");
+
+  messages.push({ role: "user", content: text });
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + API_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: messages
+    })
+  });
+
+  const data = await res.json();
+
+  const reply = data?.choices?.[0]?.message?.content || "No response";
+
+  messages.push({ role: "assistant", content: reply });
+
+  addMessage("AI: " + reply, "ai");
+}
+</script>
 </body>
 </html>
