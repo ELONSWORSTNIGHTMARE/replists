@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hades AI Builder</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<!-- TOP BAR -->
+<header>
+  <div class="logo">HADES</div>
+
+  <nav>
+    <a href="#">Dashboard</a>
+    <a href="#">Projects</a>
+    <a href="#">Deploy</a>
+  </nav>
+
+  <button class="glow-btn">Upgrade</button>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div class="container">
+
+  <!-- LEFT: CHAT -->
+  <section class="chat">
+
+    <div class="title">
+      Build Anything with AI
+    </div>
+
+    <p class="sub">
+      Describe your website and Hades will generate it instantly.
+    </p>
+
+    <textarea id="prompt" placeholder="e.g. Build me a Netflix clone with login and dark UI"></textarea>
+
+    <button onclick="generate()" class="btn">Generate Website</button>
+
+    <div id="status"></div>
+
+    <div class="ai-box" id="aiBox">
+      AI output will appear here...
+    </div>
+
+  </section>
+
+  <!-- RIGHT: PREVIEW + FILES -->
+  <section class="workspace">
+
+    <div class="tabs">
+      <button onclick="showTab('preview')">Preview</button>
+      <button onclick="showTab('files')">Files</button>
+    </div>
+
+    <!-- PREVIEW -->
+    <iframe id="preview"></iframe>
+
+    <!-- FILES -->
+    <div id="files" class="files hidden">
+      <div class="file">index.html</div>
+      <div class="file">style.css</div>
+      <div class="file">script.js</div>
+    </div>
+
+  </section>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
