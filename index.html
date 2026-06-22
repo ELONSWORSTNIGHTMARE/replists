@@ -1,47 +1,246 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Hades AI Builder</title>
-<link rel="stylesheet" href="style.css">
+<title>Hades AI Builder FIXED</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0a0a0f;
+  color: white;
+}
+
+header {
+  padding: 10px;
+  background: #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  color: #7c3aed;
+  font-weight: bold;
+}
+
+.layout {
+  display: flex;
+  height: 94vh;
+}
+
+/* LEFT */
+.left {
+  width: 25%;
+  background: #111;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+textarea, input {
+  width: 100%;
+  margin-top: 10px;
+  background: #0f0f14;
+  border: 1px solid #222;
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+  outline: none;
+}
+
+/* FILES */
+.file {
+  padding: 8px;
+  background: #1a1a1a;
+  margin-top: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* EDITOR */
+.editor {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+}
+
+#code {
+  flex: 1;
+  background: #0f0f14;
+  border: none;
+  color: white;
+  padding: 10px;
+  font-family: monospace;
+  outline: none;
+}
+
+/* PREVIEW */
+.preview {
+  width: 35%;
+  background: white;
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  background: #7c3aed;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+#status {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #aaa;
+}
+</style>
 </head>
 
 <body>
 
-<div class="bg"></div>
-
 <header>
-  <div class="logo">HADES AI</div>
-  <button onclick="generate()" class="btn">Generate</button>
+  <div class="logo">HADES AI BUILDER</div>
+  <button onclick="generateAI()">Generate AI Site</button>
 </header>
 
 <div class="layout">
 
-  <!-- LEFT PANEL -->
+  <!-- LEFT -->
   <div class="left">
 
-    <textarea id="prompt" placeholder="Describe your app..."></textarea>
+    <textarea id="prompt" placeholder="Describe your website..."></textarea>
 
-    <input type="file" id="imageInput" accept="image/*"/>
+    <input type="file" id="img">
 
-    <div id="aiStatus">Idle</div>
+    <button onclick="addFile()">+ New File</button>
 
-    <div class="files" id="files"></div>
+    <div id="fileList"></div>
+
+    <div id="status">Ready</div>
 
   </div>
 
   <!-- EDITOR -->
   <div class="editor">
-    <textarea id="code" oninput="save()"></textarea>
+    <div style="padding:5px;background:#111" id="fileName">index.html</div>
+    <textarea id="code" oninput="saveFile()"></textarea>
   </div>
 
   <!-- PREVIEW -->
   <div class="preview">
-    <iframe id="frame"></iframe>
+    <iframe id="preview"></iframe>
   </div>
 
 </div>
 
-<script src="app.js"></script>
+<script>
+let files = {
+  "index.html": "<h1>Hello Hades</h1>",
+  "style.css": "body{font-family:Arial;}",
+  "script.js": "console.log('hi')"
+};
+
+let currentFile = "index.html";
+
+/* ---------------- FILE SYSTEM ---------------- */
+
+function renderFiles() {
+  const list = document.getElementById("fileList");
+  list.innerHTML = "";
+
+  Object.keys(files).forEach(name => {
+    const div = document.createElement("div");
+    div.className = "file";
+    div.innerText = name;
+    div.onclick = () => openFile(name);
+    list.appendChild(div);
+  });
+}
+
+function openFile(name) {
+  currentFile = name;
+  document.getElementById("fileName").innerText = name;
+  document.getElementById("code").value = files[name];
+}
+
+function addFile() {
+  const name = prompt("File name?");
+  if (!name) return;
+
+  files[name] = "";
+  renderFiles();
+  openFile(name);
+  updatePreview();
+}
+
+function saveFile() {
+  files[currentFile] = document.getElementById("code").value;
+  updatePreview();
+}
+
+/* ---------------- PREVIEW ---------------- */
+
+function updatePreview() {
+  const frame = document.getElementById("preview");
+
+  const html = files["index.html"] || "";
+  const css = `<style>${files["style.css"] || ""}</style>`;
+  const js = `<script>${files["script.js"] || ""}<\/script>`;
+
+  frame.srcdoc = html + css + js;
+}
+
+/* ---------------- AI (FIXED SIMULATION) ---------------- */
+
+function generateAI() {
+  const prompt = document.getElementById("prompt").value;
+  const status = document.getElementById("status");
+
+  if (!prompt) {
+    status.innerText = "❌ Type a description first";
+    return;
+  }
+
+  status.innerText = "AI thinking...";
+
+  setTimeout(() => {
+
+    files["index.html"] =
+`<h1 style="color:#7c3aed">AI Generated Site</h1>
+<p>${prompt}</p>
+<button onclick="alert('Hello from AI!')">Click</button>`;
+
+    files["style.css"] =
+`body { background:#0a0a0f; color:white; text-align:center; padding-top:100px; }`;
+
+    files["script.js"] =
+`console.log("AI generated project loaded");`;
+
+    renderFiles();
+    openFile("index.html");
+    updatePreview();
+
+    status.innerText = "✔ AI project generated";
+
+  }, 1200);
+}
+
+/* ---------------- INIT ---------------- */
+
+renderFiles();
+openFile(currentFile);
+updatePreview();
+</script>
+
 </body>
 </html>
