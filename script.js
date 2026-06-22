@@ -1,70 +1,38 @@
-function generate() {
-  const prompt = document.getElementById("prompt").value;
-  const status = document.getElementById("status");
-  const aiBox = document.getElementById("aiBox");
+const chatBox = document.getElementById("chatBox");
 
-  if (!prompt) {
-    status.innerText = "⚠ Enter a prompt first";
-    return;
-  }
-
-  status.innerText = "Generating project...";
-  aiBox.innerText = "Thinking...";
-
-  let steps = [
-    "Analyzing prompt...",
-    "Creating UI layout...",
-    "Building frontend...",
-    "Adding animations...",
-    "Finalizing project..."
-  ];
-
-  let i = 0;
-
-  let interval = setInterval(() => {
-    aiBox.innerText = steps[i];
-    i++;
-
-    if (i === steps.length) {
-      clearInterval(interval);
-
-      aiBox.innerText =
-        "✔ Generated Website\n✔ index.html created\n✔ style.css created\n✔ script.js created";
-
-      status.innerText = "Done ✔";
-
-      loadPreview(prompt);
-    }
-  }, 800);
+function addMessage(text, className) {
+  const msg = document.createElement("div");
+  msg.classList.add("message", className);
+  msg.innerText = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-/* fake preview generator */
-function loadPreview(prompt) {
-  const iframe = document.getElementById("preview");
+// Simple “agent brain”
+function getBotResponse(input) {
+  input = input.toLowerCase();
 
-  iframe.srcdoc = `
-  <html>
-  <body style="font-family:Arial;text-align:center;padding:50px;">
-    <h1>Generated Site</h1>
-    <p>${prompt}</p>
-    <button style="padding:10px;background:black;color:white;">
-      Demo Button
-    </button>
-  </body>
-  </html>
-  `;
+  if (input.includes("hello")) return "Hello! I'm your mini agent 🤖";
+  if (input.includes("how are you")) return "I'm just code, but I'm running fine ⚡";
+  if (input.includes("your name")) return "I'm Mini Agent built with JS.";
+  if (input.includes("time")) return "Current time is " + new Date().toLocaleTimeString();
+
+  return "I didn't understand that. Try asking something else.";
 }
 
-/* tabs */
-function showTab(tab) {
-  const preview = document.getElementById("preview");
-  const files = document.getElementById("files");
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
 
-  if (tab === "preview") {
-    preview.style.display = "block";
-    files.classList.add("hidden");
-  } else {
-    preview.style.display = "none";
-    files.classList.remove("hidden");
-  }
+  if (!text) return;
+
+  addMessage(text, "user");
+
+  const reply = getBotResponse(text);
+
+  setTimeout(() => {
+    addMessage(reply, "bot");
+  }, 500);
+
+  input.value = "";
 }
