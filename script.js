@@ -2,7 +2,7 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 
 // 🔐 Put your API key here (NOT safe for production)
-const API_KEY = "YOUR_API_KEY_HERE";
+const API_KEY = "hades_sk_216afdebe30a5eb0e0f66a9015a3a742c16a69e349fb6cd7d00392bdd7de87b2";
 
 const messages = [];
 
